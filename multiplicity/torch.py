@@ -28,6 +28,15 @@ def get_func_by_name(request: Union[str, Callable], func_map: dict, func_type: s
 
 
 class ZeroOneErrorStoppingCriterion:
+    """
+    Stopping criterion defined by zero-one error.
+
+    Params:
+    ref_loader: Dataloader of the dataset on which the criterion will be computed.
+    decision_threshold: Threshold of the model prediction at which the decision is positive.
+    predict_func: Function to obtain a prediction from a given model and an example
+    """
+
     def __init__(
         self,
         ref_loader: torch.utils.data.DataLoader,
@@ -53,6 +62,15 @@ class ZeroOneErrorStoppingCriterion:
 
 
 class LossStoppingCriterion:
+    """
+    Stopping criterion defined by an arbitrary torch loss function.
+
+    Params:
+    ref_loader: Dataloader of the dataset on which the criterion will be computed.
+    loss_func: The loss function
+    predict_func: Function to obtain a prediction from a given model and an example
+    """
+
     def __init__(
         self,
         ref_loader: torch.utils.data.DataLoader,
