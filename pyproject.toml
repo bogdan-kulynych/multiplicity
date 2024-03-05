@@ -11,6 +11,9 @@ python = "^3.10"
 torch = ">=2.0.0"
 tqdm = "^4.66.1"
 
+[tool.poetry.group.dev]
+optional = true
+
 [tool.poetry.group.dev.dependencies]
 black = "^23.10.0"
 ipdb = "^0.13.13"

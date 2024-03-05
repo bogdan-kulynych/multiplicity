@@ -1,6 +1,7 @@
 __pycache__
 .pytest_cache
 *.pyc
+dist
 
 *.ipynb
 .ipynb_checkpoints
