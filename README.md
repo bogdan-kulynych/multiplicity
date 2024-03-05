@@ -1,5 +1,11 @@
 ## multiplicity
 
+[![CI](https://github.com/bogdan-kulynych/multiplicity/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bogdan-kulynych/multiplicity/actions/workflows/ci.yml)
+[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![python](https://img.shields.io/badge/-Python_3.10-blue?logo=python&logoColor=white)](https://www.python.org/downloads/release/python-3100/)
+[![pytorch](https://img.shields.io/badge/PyTorch_2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Library for evaluating [predictive multiplicity](https://arxiv.org/abs/1909.06677) of deep leearning models.
 
 ### Setup
