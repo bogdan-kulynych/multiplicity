@@ -21,7 +21,7 @@ The library provides a method to estimate a [viable prediction range](https://ar
 ```
 import multiplicity
 
-# Train binary classifier in torch.
+# Train binary classifier with torch.
 x = ...
 train_loader = ...
 model = ...
@@ -34,7 +34,7 @@ epsilon = 0.01
 stopping_criterion = multiplicity.ZeroOneLossStoppingCriterion(train_loader)
 
 # Compute viable prediction range.
-lb, pred, ub = multiplicity.binary_viable_prediction_range(
+lb, pred, ub = multiplicity.viable_prediction_range(
     model=model,
     target_example=x,
     stopping_criterion=stopping_criterion,

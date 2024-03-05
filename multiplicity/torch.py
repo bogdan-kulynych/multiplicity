@@ -183,7 +183,7 @@ def _constrained_greedy_opt(
     return float(init_score.cpu().numpy()), np.array(results)
 
 
-def binary_viable_prediction_range(
+def viable_prediction_range(
     *,
     model: torch.nn.Module,
     target_example: Union[np.ndarray, torch.Tensor],

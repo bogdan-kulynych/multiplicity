@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 from multiplicity.torch import (
     LossStoppingCriterion,
     ZeroOneErrorStoppingCriterion,
-    binary_viable_prediction_range,
+    viable_prediction_range,
 )
 
 
@@ -93,7 +93,7 @@ def binary_classification_setup():
 
 @pytest.mark.parametrize("stopping_criterion", ["loss", "zero_one_error"])
 @pytest.mark.parametrize("criterion_thresholds", [0.01, [0.001, 0.01, 0.1]])
-def test_binary_viable_prediction_range(
+def test_viable_prediction_range(
     binary_classification_setup, stopping_criterion, criterion_thresholds
 ):
     model, train_loader, X_test, y_test = binary_classification_setup
@@ -104,7 +104,7 @@ def test_binary_viable_prediction_range(
     elif stopping_criterion == "loss":
         stopping_criterion = LossStoppingCriterion(train_loader, nn.BCELoss())
 
-    lbs, pred, ubs = binary_viable_prediction_range(
+    lbs, pred, ubs = viable_prediction_range(
         model=model,
         target_example=target_example,
         criterion_thresholds=criterion_thresholds,
