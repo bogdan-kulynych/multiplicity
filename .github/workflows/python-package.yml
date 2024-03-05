@@ -10,8 +10,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -34,13 +33,13 @@ jobs:
           version: 1.7.1
           virtualenvs-create: true
           virtualenvs-in-project: true
-    - name: Cache deps
-      id: cache-deps
-      uses: actions/cache@v2
-      with:
-        path: .venv
-        key: pydeps-${{ hashFiles('**/poetry.lock') }}-${{ matrix.python-version }}
-    - run: poetry install --no-interaction
-      name: Install package
-    - run: poetry run pytest
-      name: Run tests
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: pydeps-${{ hashFiles('**/poetry.lock') }}-${{ matrix.python-version }}
+      - run: poetry install --no-interaction
+        name: Install package
+      - run: poetry run pytest
+        name: Run tests
