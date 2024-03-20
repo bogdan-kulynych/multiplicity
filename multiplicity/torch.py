@@ -162,7 +162,7 @@ def _constrained_greedy_opt(
                         )
                     latest_threshold_index = i + 1
 
-            if latest_threshold_index == num_thresholds:
+            if latest_threshold_index == num_thresholds and verbose:
                 print("done.")
                 break
 
