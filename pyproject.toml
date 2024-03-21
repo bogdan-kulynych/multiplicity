@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "multiplicity"
-version = "1.0.0"
+version = "2.0.0"
 description = "Evaluate predictive multiplicity"
 authors = ["Bogdan Kulynych <bogdan@kulyny.ch>"]
 readme = "README.md"

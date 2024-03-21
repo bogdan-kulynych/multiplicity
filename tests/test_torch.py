@@ -9,8 +9,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 
 from multiplicity.torch import (
-    LossStoppingCriterion,
-    ZeroOneErrorStoppingCriterion,
+    LossCriterion,
+    ZeroOneErrorCriterion,
     viable_prediction_range,
 )
 
@@ -91,24 +91,24 @@ def binary_classification_setup():
     return model, train_loader, X_test_tensor, y_test_tensor
 
 
-@pytest.mark.parametrize("stopping_criterion", ["loss", "zero_one_error"])
+@pytest.mark.parametrize("robustness_criterion", ["loss", "zero_one_error"])
 @pytest.mark.parametrize("criterion_thresholds", [0.01, [0.001, 0.01, 0.1]])
 def test_viable_prediction_range(
-    binary_classification_setup, stopping_criterion, criterion_thresholds
+    binary_classification_setup, robustness_criterion, criterion_thresholds
 ):
     model, train_loader, X_test, y_test = binary_classification_setup
     target_example = X_test[0]
 
-    if stopping_criterion == "zero_one_error":
-        stopping_criterion = ZeroOneErrorStoppingCriterion(train_loader)
-    elif stopping_criterion == "loss":
-        stopping_criterion = LossStoppingCriterion(train_loader, nn.BCELoss())
+    if robustness_criterion == "zero_one_error":
+        robustness_criterion = ZeroOneErrorCriterion(train_loader)
+    elif robustness_criterion == "loss":
+        robustness_criterion = LossCriterion(train_loader, nn.BCELoss())
 
     lbs, pred, ubs = viable_prediction_range(
         model=model,
         target_example=target_example,
         criterion_thresholds=criterion_thresholds,
-        stopping_criterion=stopping_criterion,
+        robustness_criterion=robustness_criterion,
         step_size=1e-3,
         max_steps=50,
         verbose=True,

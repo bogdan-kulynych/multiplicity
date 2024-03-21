@@ -16,29 +16,31 @@ pip install multiplicity
 
 ### Quickstart
 
-The library provides a method to estimate a [viable prediction range](https://arxiv.org/abs/2206.01131) ---the minimum and maximum possible predictions--- within the Rashomon set ---a set of models that have epsilon-similar loss on some reference dataset.
+The library provides a method to estimate [viable prediction intervals](https://arxiv.org/abs/2206.01131): prediction intervals that are robust to a small change in model's loss at training or evaluation time.
+
+Import the library:
 
 ```
-import multiplicity
+from multiplicity import torch as multiplicity
+```
 
-# Train binary classifier with torch.
-x = ...
-train_loader = ...
-model = ...
-model(x)  # e.g., 0.75
+Suppose we have a trained torch binary classifier which outputs softmax probabilities:
+```
+model(x)  # 0.75
+```
 
-# Specify how similar is the loss for models in the Rashomon set.
-epsilon = 0.01
+Specify to the deviation of which metric we want to be robust to, and on which dataset:
+```
+robustness_criterion = multiplicity.ZeroOneLossCriterion(train_loader)
+```
 
-# Specify the loss function that defines the Rashomon set.
-stopping_criterion = multiplicity.ZeroOneLossStoppingCriterion(train_loader)
-
-# Compute viable prediction range.
+Then, we can compute the viable prediction range for a given example x like so:
+```
 lb, pred, ub = multiplicity.viable_prediction_range(
     model=model,
     target_example=x,
-    stopping_criterion=stopping_criterion,
+    robustness_criterion=robustness_criterion,
     criterion_thresholds=epsilon,
 )
-# e.g., lb=0.71, pred=0.75, ub=0.88
+# lb=0.71, pred=0.75, ub=0.88
 ```

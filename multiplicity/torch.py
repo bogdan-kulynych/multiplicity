@@ -27,9 +27,9 @@ def get_func_by_name(request: Union[str, Callable], func_map: dict, func_type: s
         return request
 
 
-class ZeroOneErrorStoppingCriterion:
+class ZeroOneErrorCriterion:
     """
-    Stopping criterion defined by zero-one error.
+    Robustness criterion defined by zero-one error.
 
     Params:
     ref_loader: Dataloader of the dataset on which the criterion will be computed.
@@ -61,9 +61,9 @@ class ZeroOneErrorStoppingCriterion:
         return num_correct / num_total
 
 
-class LossStoppingCriterion:
+class LossCriterion:
     """
-    Stopping criterion defined by an arbitrary torch loss function.
+    Robustness criterion defined by an arbitrary torch loss function.
 
     Params:
     ref_loader: Dataloader of the dataset on which the criterion will be computed.
@@ -106,7 +106,7 @@ def _constrained_greedy_opt(
     model: torch.nn.Module,
     target_example: torch.Tensor,
     criterion_thresholds: Iterable[float],
-    stopping_criterion: Callable,
+    robustness_criterion: Callable,
     score_func: Callable,
     optimizer_class: Callable,
     direction: int = +1,
@@ -118,7 +118,7 @@ def _constrained_greedy_opt(
     num_thresholds = len(criterion_thresholds)
 
     with torch.no_grad():
-        init_criterion = stopping_criterion(model=model)
+        init_criterion = robustness_criterion(model=model)
         init_score = best_score = score_func(model, target_example)
 
     model.train()
@@ -150,7 +150,7 @@ def _constrained_greedy_opt(
         optimizer.step()
 
         with torch.no_grad():
-            cur_criterion = stopping_criterion(model=model)
+            cur_criterion = robustness_criterion(model=model)
 
             for i in range(latest_threshold_index, num_thresholds):
                 threshold = criterion_thresholds[i]
@@ -187,7 +187,7 @@ def viable_prediction_range(
     *,
     model: torch.nn.Module,
     target_example: Union[np.ndarray, torch.Tensor],
-    stopping_criterion: Union[str, Callable],
+    robustness_criterion: Union[str, Callable],
     criterion_thresholds: Union[Iterable[float], float],
     score_func: Union[str, Callable] = "output",
     optimizer_class=None,
@@ -201,7 +201,7 @@ def viable_prediction_range(
 
     model: Torch module.
     target_example: Target example for which we compute the range.
-    stopping_criterion: Stopping criterion which decides when the range is computed.
+    robustness_criterion: Criterion which decides until when the range is computed.
     criterion_thresholds: List of strictly increasing thresholds for the stopping criterion.
     score_func: Scoring function to be optimized in the Rashomon set.
     optimizer_class: Optimizer.
@@ -231,7 +231,7 @@ def viable_prediction_range(
         model=model_prime,
         target_example=target_example,
         criterion_thresholds=_criterion_thresholds,
-        stopping_criterion=stopping_criterion,
+        robustness_criterion=robustness_criterion,
         score_func=score_func,
         optimizer_class=optimizer_class,
         step_size=step_size,
@@ -246,7 +246,7 @@ def viable_prediction_range(
         model=model_prime,
         target_example=target_example,
         criterion_thresholds=_criterion_thresholds,
-        stopping_criterion=stopping_criterion,
+        robustness_criterion=robustness_criterion,
         score_func=score_func,
         optimizer_class=optimizer_class,
         step_size=step_size,
