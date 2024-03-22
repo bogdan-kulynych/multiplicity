@@ -32,9 +32,9 @@ class ZeroOneErrorCriterion:
     Robustness criterion defined by zero-one error.
 
     Params:
-    ref_loader: Dataloader of the dataset on which the criterion will be computed.
-    decision_threshold: Threshold of the model prediction at which the decision is positive.
-    predict_func: Function to obtain a prediction from a given model and an example
+        ref_loader: Dataloader of the dataset on which the criterion will be computed.
+        decision_threshold: Threshold of the model prediction at which the decision is positive.
+        predict_func: Function to obtain a prediction from a given model and an example
     """
 
     def __init__(
@@ -66,9 +66,9 @@ class LossCriterion:
     Robustness criterion defined by an arbitrary torch loss function.
 
     Params:
-    ref_loader: Dataloader of the dataset on which the criterion will be computed.
-    loss_func: The loss function
-    predict_func: Function to obtain a prediction from a given model and an example
+        ref_loader: Dataloader of the dataset on which the criterion will be computed.
+        loss_func: The loss function
+        predict_func: Function to obtain a prediction from a given model and an example
     """
 
     def __init__(
@@ -118,8 +118,8 @@ def _constrained_greedy_opt(
     num_thresholds = len(criterion_thresholds)
 
     with torch.no_grad():
-        init_criterion = robustness_criterion(model=model)
-        init_score = best_score = score_func(model, target_example)
+        init_criterion = cur_criterion = robustness_criterion(model=model)
+        init_score = best_score = cur_score = score_func(model, target_example)
 
     model.train()
     for submodule in model.modules():
@@ -142,23 +142,19 @@ def _constrained_greedy_opt(
         print(f"{init_criterion=:.4f} {init_score=:.4f}")
 
     for step in range(max_steps):
-        # Make gradient steps...
-        optimizer.zero_grad()
-        cur_score = score_func(model, target_example)
-        target_loss = direction * cur_score
-        target_loss.backward()
-        optimizer.step()
-
+        # Check the constraints.
         with torch.no_grad():
             cur_criterion = robustness_criterion(model=model)
+            if verbose:
+                print(f"{step=}. {cur_criterion=:.4f}, {cur_score=:.4f}")
 
             for i in range(latest_threshold_index, num_thresholds):
                 threshold = criterion_thresholds[i]
-                if abs(cur_criterion - init_criterion) > threshold:
+                if abs(cur_criterion - init_criterion) >= threshold:
                     results[i] = best_score.cpu().numpy()
                     if verbose:
                         print(
-                            f"reached threshold. {threshold=} {best_score=:.4f}",
+                            f"reached threshold. {threshold=:.4f}, {best_score=:.4f}",
                         )
                     latest_threshold_index = i + 1
 
@@ -174,11 +170,16 @@ def _constrained_greedy_opt(
                 if cur_score < best_score:
                     best_score = cur_score
 
+            # Propagate the best score.
             for j in range(latest_threshold_index, len(criterion_thresholds)):
                 results[j] = float(best_score.cpu().numpy())
 
-            if verbose:
-                print(f"{step=} {cur_criterion=:.4f}, {cur_score=:.4f}")
+        # Make gradient steps.
+        optimizer.zero_grad()
+        cur_score = score_func(model, target_example)
+        target_loss = direction * cur_score
+        target_loss.backward()
+        optimizer.step()
 
     return float(init_score.cpu().numpy()), np.array(results)
 
@@ -199,16 +200,17 @@ def viable_prediction_range(
     """
     Viable prediction range at given maximum loss difference.
 
-    model: Torch module.
-    target_example: Target example for which we compute the range.
-    robustness_criterion: Criterion which decides until when the range is computed.
-    criterion_thresholds: List of strictly increasing thresholds for the stopping criterion.
-    score_func: Scoring function to be optimized in the Rashomon set.
-    optimizer_class: Optimizer.
-    step_size: Optimizer step size.
-    max_steps: Maximum optimization steps.
-    weight_decay: Optimizer weight_decay.
-    verbose: Whether to output progress.
+    Args:
+        model: Torch module.
+        target_example: Target example for which we compute the range.
+        robustness_criterion: Criterion which decides until when the range is computed.
+        criterion_thresholds: List of strictly increasing thresholds for the stopping criterion.
+        score_func: Scoring function to be optimized in the Rashomon set.
+        optimizer_class: Optimizer.
+        step_size: Optimizer step size.
+        max_steps: Maximum optimization steps.
+        weight_decay: Optimizer weight_decay.
+        verbose: Whether to output progress.
     """
     score_func = get_func_by_name(score_func, score_function_map, "score_func")
     _criterion_thresholds = criterion_thresholds
@@ -254,6 +256,7 @@ def viable_prediction_range(
         weight_decay=weight_decay,
         verbose=verbose,
     )
+
     assert pred1 == pred2
     assert all(lbs <= pred1)
     assert all(ubs >= pred1)

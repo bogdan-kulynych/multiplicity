@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "multiplicity"
-version = "2.0.0"
-description = "Evaluate predictive multiplicity"
+version = "2.1.0"
+description = "Predictive multiplicity for deep learning"
 authors = ["Bogdan Kulynych <bogdan@kulyny.ch>"]
 readme = "README.md"
 license = "MIT"

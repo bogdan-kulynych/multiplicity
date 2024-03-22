@@ -117,9 +117,35 @@ def test_viable_prediction_range(
     if isinstance(criterion_thresholds, float):
         lbs = [lbs]
         ubs = [ubs]
+        criterion_thresholds = [criterion_thresholds]
 
+    assert len(lbs) == len(ubs) == len(criterion_thresholds)
     for lb, ub in zip(lbs, ubs):
         assert lb <= pred <= ub
 
     assert all(lbs[i] >= lbs[i + 1] for i in range(len(lbs) - 1))
     assert all(ubs[i] <= ubs[i + 1] for i in range(len(ubs) - 1))
+
+
+def test_viable_prediction_range_with_zero(binary_classification_setup):
+    model, train_loader, X_test, y_test = binary_classification_setup
+    target_example = X_test[0]
+
+    robustness_criterion = ZeroOneErrorCriterion(train_loader)
+
+    import ipdb
+
+    ipdb.set_trace()
+    lbs, pred, ubs = viable_prediction_range(
+        model=model,
+        target_example=target_example,
+        criterion_thresholds=[0, 0.1, 0.2],
+        robustness_criterion=robustness_criterion,
+        step_size=1e-3,
+        max_steps=50,
+        verbose=True,
+    )
+
+    # Because the first threshold is zero, the first (lb, ub) should
+    # be have width zero too.
+    assert lbs[0] == pred == ubs[0]
