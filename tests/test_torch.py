@@ -133,9 +133,6 @@ def test_viable_prediction_range_with_zero(binary_classification_setup):
 
     robustness_criterion = ZeroOneErrorCriterion(train_loader)
 
-    import ipdb
-
-    ipdb.set_trace()
     lbs, pred, ubs = viable_prediction_range(
         model=model,
         target_example=target_example,
